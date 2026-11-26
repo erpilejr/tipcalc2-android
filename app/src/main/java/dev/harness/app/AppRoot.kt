@@ -24,6 +24,7 @@ private const val TIP_DEFAULT = 15
 private const val TIP_HIGH = 20
 private const val PERCENT = 100
 private const val CENTS = 2
+private const val MAX_PEOPLE = 20
 private val TIPS = listOf(TIP_LOW, TIP_DEFAULT, TIP_HIGH)
 
 /** Plain model of the calculator's amounts. */
@@ -51,11 +52,14 @@ fun formatNzd(amount: BigDecimal): String {
 fun AppRoot() {
     var bill by remember { mutableStateOf("") }
     var tipPercent by remember { mutableStateOf(TIP_DEFAULT) }
+    var people by remember { mutableStateOf(1) }
     BillAndTipScreen(
         bill = bill,
         tipPercent = tipPercent,
         onBillChange = { bill = it },
-        onTipChange = { tipPercent = it }
+        onTipChange = { tipPercent = it },
+        people = people,
+        onPeopleChange = { people = it }
     )
 }
 
@@ -64,9 +68,11 @@ fun BillAndTipScreen(
     bill: String,
     tipPercent: Int,
     onBillChange: (String) -> Unit,
-    onTipChange: (Int) -> Unit
+    onTipChange: (Int) -> Unit,
+    people: Int = 1,
+    onPeopleChange: (Int) -> Unit = {}
 ) {
-    val amounts = calculate(bill, tipPercent)
+    val amounts = calculate(bill, tipPercent, people)
     Column(Modifier.padding(16.dp)) {
         TextField(
             value = bill,
@@ -81,6 +87,17 @@ fun BillAndTipScreen(
             }
         }
         Text("Tip: $tipPercent%", Modifier.testTag("tip-label"))
+        Row {
+            Button(
+                onClick = { onPeopleChange((people - 1).coerceAtLeast(1)) },
+                modifier = Modifier.testTag("people-minus")
+            ) { Text("−") }
+            Text(people.toString(), Modifier.testTag("people-count"))
+            Button(
+                onClick = { onPeopleChange((people + 1).coerceAtMost(MAX_PEOPLE)) },
+                modifier = Modifier.testTag("people-plus")
+            ) { Text("+") }
+        }
         Text(formatNzd(amounts.tip), Modifier.testTag("tip-amount"))
         Text(formatNzd(amounts.total), Modifier.testTag("total-amount"))
         Text(formatNzd(amounts.each), Modifier.testTag("each-amount"))
