@@ -50,28 +50,23 @@ fun formatNzd(amount: BigDecimal): String {
 
 @Composable
 fun AppRoot() {
-    var bill by remember { mutableStateOf("") }
-    var tipPercent by remember { mutableStateOf(TIP_DEFAULT) }
-    var people by remember { mutableStateOf(1) }
-    BillAndTipScreen(
-        bill = bill,
-        tipPercent = tipPercent,
-        onBillChange = { bill = it },
-        onTipChange = { tipPercent = it },
-        people = people,
-        onPeopleChange = { people = it }
-    )
+    var state by remember { mutableStateOf(ScreenState()) }
+    BillAndTipScreen(state = state, onChange = { state = it })
 }
 
+/** Plain model of the screen's inputs. */
+data class ScreenState(
+    val bill: String = "",
+    val tipPercent: Int = TIP_DEFAULT,
+    val people: Int = 1
+)
+
 @Composable
-fun BillAndTipScreen(
-    bill: String,
-    tipPercent: Int,
-    onBillChange: (String) -> Unit,
-    onTipChange: (Int) -> Unit,
-    people: Int = 1,
-    onPeopleChange: (Int) -> Unit = {}
-) {
+fun BillAndTipScreen(state: ScreenState, onChange: (ScreenState) -> Unit) {
+    val (bill, tipPercent, people) = state
+    val onBillChange = { text: String -> onChange(state.copy(bill = text)) }
+    val onTipChange = { pct: Int -> onChange(state.copy(tipPercent = pct)) }
+    val onPeopleChange = { n: Int -> onChange(state.copy(people = n)) }
     val amounts = calculate(bill, tipPercent, people)
     Column(Modifier.padding(16.dp)) {
         TextField(
