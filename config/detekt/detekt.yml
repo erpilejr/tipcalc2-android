@@ -1,0 +1,7 @@
+naming:
+  FunctionNaming:
+    ignoreAnnotated: ['Composable', 'Test']
+
+style:
+  MagicNumber:
+    ignoreNumbers: ['-1', '0', '1', '2', '3']

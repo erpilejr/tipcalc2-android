@@ -1,0 +1,16 @@
+name: harness-verify
+on: pull_request
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - run: ./gradlew assembleDebug testDebugUnitTest ktlintCheck detekt
